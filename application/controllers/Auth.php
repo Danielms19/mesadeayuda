@@ -45,4 +45,41 @@ class Auth extends CI_Controller {
 		$this->session->sess_destroy();
 		redirect(base_url());
 	}
+
+	public function signup(){
+		$username = $this->input->post("username");
+		$password = $this->input->post("password");
+		$name = $this->input->post("name");
+		$lastname = $this->input->post("lastname");
+
+		if ($this->session->userdata("login")) {
+			if ($this->session->userdata("tc_dni") == trim($username)) {
+				redirect(base_url());
+			} else {
+				$this->session->sess_destroy();	
+			}
+		}
+
+		if ($this->Usuarios_model->exists($username, $name, $lastname)) {
+			$res = $this->Usuarios_model->login($username, $password);
+		}
+
+		if (!$res) {
+			$this->session->set_flashdata("error","El usuario y/o contraseña son incorrectos");
+			redirect(base_url());
+		}
+		else{
+			$data  = array(
+				'id_tecnico' => $res->id_tecnico, 
+				'tc_nombres' => $res->tc_nombres,
+				'tipo_id' => $res->tipo_id,
+				'tc_apellidos' => $res->tc_apellidos,
+				'tc_dni' => $res->tc_dni,
+				'login' => TRUE
+			);
+			$this->session->set_userdata($data);
+			redirect(base_url()."dashboard");
+		}
+	}
+
 }

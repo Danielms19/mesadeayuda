@@ -48,4 +48,30 @@ class Usuarios_model extends CI_Model {
 			return false;
 		}
 	}
+
+	public function exists($username, $name, $lastname) {
+		$valid = false;
+		try {
+			$sql = "SELECT * FROM tecnicos WHERE tc_dni = ?";
+			$user = $this->db->query($sql, compact('username'))->row();
+			if (!$user) {
+				$this->db->insert('tecnicos', [
+					'tc_nombres'	=> $name,
+					'tc_apellidos' 	=> $lastname,
+					'tc_dni' 		=> $username,
+					'tc_estado' 	=> 1,
+					'tipo_id'		=> 1
+				]);
+			} else {
+				if ($user->tc_estado == 0) {
+					$this->db->update('tecnicos', ['tc_estado' => 1], array('id_tecnico' => $user->id_tecnico));
+				}
+			}
+			$valid = true;
+		} catch (\Exception $e) {
+			$valid = false;
+		}
+		return $valid;
+	}
+
 }
